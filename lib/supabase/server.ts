@@ -2,8 +2,8 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { supabaseAnonKey, supabaseUrl } from "@/lib/supabase/config";
 
-export function createClient() {
-  const cookieStore = cookies();
+export async function createClient() {
+  const cookieStore = await cookies();
   type CookieToSet = { name: string; value: string; options: CookieOptions };
 
   return createServerClient(

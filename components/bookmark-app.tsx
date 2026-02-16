@@ -74,7 +74,7 @@ export function BookmarkApp() {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(hasSupabaseEnv);
   const [listLoading, setListLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
@@ -82,7 +82,6 @@ export function BookmarkApp() {
 
   useEffect(() => {
     if (!hasSupabaseEnv) {
-      setLoading(false);
       return;
     }
 
@@ -115,7 +114,6 @@ export function BookmarkApp() {
     }
 
     if (!user) {
-      setBookmarks([]);
       return;
     }
 
@@ -228,6 +226,11 @@ export function BookmarkApp() {
   const addBookmark = async (event: FormEvent) => {
     event.preventDefault();
     setError(null);
+
+    if (!user) {
+      setError("Please sign in again.");
+      return;
+    }
 
     if (!title.trim() || !url.trim()) {
       setError("Both title and URL are required.");
@@ -409,7 +412,7 @@ export function BookmarkApp() {
               <div className="h-4 w-1/2 animate-pulse rounded bg-slate-100" />
             </li>
           </>
-        ) : bookmarks.length === 0 ? (
+        ) : user && bookmarks.length === 0 ? (
           <li className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-500">
             No bookmarks yet. Add your first one above.
           </li>
