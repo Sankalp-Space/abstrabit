@@ -12,7 +12,7 @@ A bookmark manager built with Next.js App Router, Supabase Auth/Database/Realtim
 
 ## Tech Stack
 
-- Next.js 14 (App Router)
+- Next.js 16 (App Router)
 - Supabase (`@supabase/supabase-js`, `@supabase/ssr`)
 - Tailwind CSS
 - Vercel (deployment target)
@@ -64,21 +64,25 @@ A bookmark manager built with Next.js App Router, Supabase Auth/Database/Realtim
 
 ## Problems I Ran Into and How I Solved Them
 
-1. OAuth callback session exchange
-- Problem: Google OAuth returns with a code that must be exchanged server-side.
-- Fix: Added `app/auth/callback/route.ts` to call `supabase.auth.exchangeCodeForSession(code)` and redirect home.
+1. Google login worked, but session handling was tricky at first
+- What happened: after OAuth redirect, login state was not always stable.
+- How I solved it: I added an auth callback route (`app/auth/callback/route.ts`) to exchange the code for a session, and used Supabase SSR cookie handling so auth stays consistent.
 
-2. Session consistency between client and server routes
-- Problem: Session cookies can drift without middleware refresh.
-- Fix: Added `middleware.ts` + `lib/supabase/middleware.ts` using `@supabase/ssr` `updateSession` pattern.
+2. RLS blocked inserts in the beginning
+- What happened: I got a `row violates row-level security policy` error when adding bookmarks.
+- How I solved it: I made sure `user_id` is correctly set on insert and also set a default `auth.uid()` at DB level. After that, inserts worked correctly.
 
-3. Realtime updates and user isolation
-- Problem: Realtime can include unrelated events if channel is too broad.
-- Fix: Subscribed to `postgres_changes` with `filter: user_id=eq.<currentUserId>` and also enforced RLS at database level.
+3. Realtime felt inconsistent during local testing
+- What happened: updates across tabs were sometimes delayed or missed in dev.
+- How I solved it: I kept realtime subscription as primary, and added a light fallback sync only when channel status is unhealthy. This keeps reads low while still feeling reliable.
 
-4. URL validation UX
-- Problem: users often enter URLs without protocol.
-- Fix: Auto-prefix `https://` and validate with `new URL(...)` before insert.
+4. UI actions felt slow on weaker network
+- What happened: add/delete felt delayed because UI waited for server response.
+- How I solved it: I added optimistic UI (instant add/remove), loading spinners, and rollback on error. This made interactions feel much smoother.
+
+5. Deployment/environment mismatches
+- What happened: a few issues came from env setup, OAuth redirect URLs, and newer Next.js behavior.
+- How I solved it: I aligned package versions, updated lint/build config, verified Vercel env vars, and added the exact Supabase redirect URLs for local + production.
 
 ## Submission Checklist
 
