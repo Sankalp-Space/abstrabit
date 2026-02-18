@@ -84,8 +84,8 @@ A bookmark manager built with Next.js App Router, Supabase Auth/Database/Realtim
 - What happened: a few issues came from env setup, OAuth redirect URLs, and newer Next.js behavior.
 - How I solved it: I aligned package versions, updated lint/build config, verified Vercel env vars, and added the exact Supabase redirect URLs for local + production.
 
-## Submission Checklist
 
-- Live Vercel URL: _add after deploy_
-- Public GitHub repo: _add after push_
-- README with challenges/solutions: included
+
+- Live Vercel URL: [Deployment Link of Vercel](https://abstrabit-hazel.vercel.app/)
+- Public GitHub repo: [Github Repo Link](https://github.com/Sankalp-Space/abstrabit)
+
